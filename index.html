@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PV Cloning Calculators</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-btn.active { 
+            border-bottom: 2px solid #2563eb; 
+            color: #2563eb; 
+            font-weight: 600;
+        }
+        input[type="number"] {
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-700 p-6 text-white text-center">
+            <h1 class="text-3xl font-bold">PV Cloning Calculators</h1>
+            <p class="text-blue-100 mt-2 text-sm">Real-time Molecular Biology Reaction Planning</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b bg-gray-50">
+            <button onclick="switchTab('ligation')" id="btn-ligation" class="flex-1 py-4 px-6 text-center text-gray-500 hover:text-blue-600 transition-colors tab-btn active">
+                Ligation Calculator
+            </button>
+            <button onclick="switchTab('gibson')" id="btn-gibson" class="flex-1 py-4 px-6 text-center text-gray-500 hover:text-blue-600 transition-colors tab-btn">
+                Gibson Assembly Calculator
+            </button>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <!-- ================= LIGATION CALCULATOR ================= -->
+            <div id="tab-ligation" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Inputs -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                            <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b border-blue-200 pb-2">Vector</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm text-gray-600 mb-1">Size (bp)</label><input type="number" id="lig-vec-size" class="w-full p-2 border rounded" value="5000"></div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Conc (ng/ul)</label><input type="number" id="lig-vec-conc" class="w-full p-2 border rounded" value="50"></div>
+                                <div class="col-span-2"><label class="block text-sm text-gray-600 mb-1">Target Amount (ng)</label><input type="number" id="lig-vec-target" class="w-full p-2 border rounded" value="50"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50/50 p-4 rounded-lg border border-green-100">
+                            <h3 class="font-semibold text-green-800 mb-3 text-lg border-b border-green-200 pb-2">Insert</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm text-gray-600 mb-1">Size (bp)</label><input type="number" id="lig-ins-size" class="w-full p-2 border rounded" value="1000"></div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Conc (ng/ul)</label><input type="number" id="lig-ins-conc" class="w-full p-2 border rounded" value="25"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50/50 p-4 rounded-lg border border-purple-100">
+                            <h3 class="font-semibold text-purple-800 mb-3 text-lg border-b border-purple-200 pb-2">Settings</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm text-gray-600 mb-1">Molar Ratio (Ins:Vec)</label><input type="number" id="lig-ratio" class="w-full p-2 border rounded" value="3" step="0.5"></div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Total Vol (ul)</label><input type="number" id="lig-vol" class="w-full p-2 border rounded" value="20"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outputs -->
+                    <div>
+                        <div class="bg-gray-50 p-5 rounded-lg border h-full">
+                            <h3 class="font-bold text-gray-800 mb-4 text-xl">Reaction Recipe</h3>
+                            
+                            <div class="mb-4 p-3 bg-white border rounded shadow-sm">
+                                <p class="text-sm text-gray-500">Insert Amount Needed:</p>
+                                <p class="text-lg font-semibold text-indigo-700"><span id="lig-out-ins-ng">0.00</span> ng</p>
+                            </div>
+
+                            <table class="w-full text-left bg-white border rounded overflow-hidden shadow-sm">
+                                <thead class="bg-gray-100 text-gray-600 text-sm">
+                                    <tr>
+                                        <th class="py-2 px-4 border-b">Component</th>
+                                        <th class="py-2 px-4 border-b text-right">Volume (µl)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr><td class="py-2 px-4 border-b">Vector</td><td class="py-2 px-4 border-b text-right font-mono" id="lig-out-vec-vol">0.00</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">Insert</td><td class="py-2 px-4 border-b text-right font-mono" id="lig-out-ins-vol">0.00</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">10x T4 Buffer</td><td class="py-2 px-4 border-b text-right font-mono" id="lig-out-buf-vol">0.00</td></tr>
+                                    <tr><td class="py-2 px-4 border-b">T4 DNA Ligase</td><td class="py-2 px-4 border-b text-right font-mono" id="lig-out-enz-vol">0.00</td></tr>
+                                    <tr class="bg-blue-50"><td class="py-2 px-4 font-semibold">Water (MQ)</td><td class="py-2 px-4 text-right font-mono font-bold" id="lig-out-h2o-vol">0.00</td></tr>
+                                    <tr class="bg-gray-100 font-bold"><td class="py-2 px-4">Total</td><td class="py-2 px-4 text-right font-mono" id="lig-out-total-vol">20.00</td></tr>
+                                </tbody>
+                            </table>
+                            <p id="lig-warning" class="text-red-500 text-sm font-semibold mt-3 hidden">Warning: Negative water volume! Adjust concentrations or target amounts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= GIBSON CALCULATOR ================= -->
+            <div id="tab-gibson" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Inputs -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                            <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b border-blue-200 pb-2 flex justify-between">
+                                Vector 
+                                <span class="text-sm font-normal text-blue-600 bg-blue-100 px-2 rounded-full leading-relaxed" id="gib-vec-pmol">0 pmol</span>
+                            </h3>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div><label class="block text-xs text-gray-600 mb-1">Size (bp)</label><input type="number" id="gib-vec-size" class="w-full p-2 text-sm border rounded" value="5000"></div>
+                                <div><label class="block text-xs text-gray-600 mb-1">Conc (ng/ul)</label><input type="number" id="gib-vec-conc" class="w-full p-2 text-sm border rounded" value="50"></div>
+                                <div><label class="block text-xs text-gray-600 mb-1">Target (ng)</label><input type="number" id="gib-vec-target" class="w-full p-2 text-sm border rounded" value="100"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50/50 p-4 rounded-lg border border-green-100">
+                            <div class="flex justify-between items-center mb-3 border-b border-green-200 pb-2">
+                                <h3 class="font-semibold text-green-800 text-lg">Inserts</h3>
+                                <select id="gib-insert-count" class="text-sm border-gray-300 rounded p-1">
+                                    <option value="1">1 Insert</option>
+                                    <option value="2">2 Inserts</option>
+                                    <option value="3">3 Inserts</option>
+                                </select>
+                            </div>
+                            
+                            <div id="gib-inserts-container" class="space-y-4">
+                                <!-- Insert rows generated via JS / HTML structures below -->
+                                <div class="gib-insert-row" data-index="1">
+                                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1">
+                                        <span>Insert 1</span>
+                                        <span class="text-indigo-600" id="gib-ins1-metrics">0 pmol | 0 ng</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Size (bp)</label><input type="number" id="gib-ins1-size" class="w-full p-2 text-sm border rounded" value="1000"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Conc (ng/ul)</label><input type="number" id="gib-ins1-conc" class="w-full p-2 text-sm border rounded" value="25"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Ratio</label><input type="number" id="gib-ins1-ratio" class="w-full p-2 text-sm border rounded" value="2" step="0.5"></div>
+                                    </div>
+                                </div>
+
+                                <div class="gib-insert-row hidden border-t border-green-200 pt-3" data-index="2">
+                                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1">
+                                        <span>Insert 2</span>
+                                        <span class="text-indigo-600" id="gib-ins2-metrics">0 pmol | 0 ng</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Size (bp)</label><input type="number" id="gib-ins2-size" class="w-full p-2 text-sm border rounded" value="1500"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Conc (ng/ul)</label><input type="number" id="gib-ins2-conc" class="w-full p-2 text-sm border rounded" value="30"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Ratio</label><input type="number" id="gib-ins2-ratio" class="w-full p-2 text-sm border rounded" value="2" step="0.5"></div>
+                                    </div>
+                                </div>
+
+                                <div class="gib-insert-row hidden border-t border-green-200 pt-3" data-index="3">
+                                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1">
+                                        <span>Insert 3</span>
+                                        <span class="text-indigo-600" id="gib-ins3-metrics">0 pmol | 0 ng</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Size (bp)</label><input type="number" id="gib-ins3-size" class="w-full p-2 text-sm border rounded" value="500"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Conc (ng/ul)</label><input type="number" id="gib-ins3-conc" class="w-full p-2 text-sm border rounded" value="15"></div>
+                                        <div><label class="block text-[10px] text-gray-500 uppercase">Ratio</label><input type="number" id="gib-ins3-ratio" class="w-full p-2 text-sm border rounded" value="2" step="0.5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50/50 p-4 rounded-lg border border-purple-100">
+                            <h3 class="font-semibold text-purple-800 mb-3 text-lg border-b border-purple-200 pb-2">Settings</h3>
+                            <div><label class="block text-sm text-gray-600 mb-1">Total Reaction Vol (ul)</label><input type="number" id="gib-vol" class="w-full md:w-1/2 p-2 border rounded" value="20"></div>
+                        </div>
+                    </div>
+
+                    <!-- Outputs -->
+                    <div>
+                        <div class="bg-gray-50 p-5 rounded-lg border h-full">
+                            <h3 class="font-bold text-gray-800 mb-4 text-xl">Reaction Recipe</h3>
+                            
+                            <table class="w-full text-left bg-white border rounded overflow-hidden shadow-sm">
+                                <thead class="bg-gray-100 text-gray-600 text-sm">
+                                    <tr>
+                                        <th class="py-2 px-4 border-b">Component</th>
+                                        <th class="py-2 px-4 border-b text-right">Volume (µl)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700" id="gib-recipe-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                            <p id="gib-warning" class="text-red-500 text-sm font-semibold mt-3 hidden">Warning: Negative water volume! Decrease DNA target amount, increase concentrations, or increase total volume.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- UI Logic ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`btn-${tabId}`).classList.add('active');
+        }
+
+        // Add event listeners to all inputs to trigger recalculations
+        document.querySelectorAll('#tab-ligation input').forEach(input => {
+            input.addEventListener('input', calculateLigation);
+        });
+
+        document.querySelectorAll('#tab-gibson input, #gib-insert-count').forEach(input => {
+            input.addEventListener('input', () => {
+                updateGibsonUI();
+                calculateGibson();
+            });
+        });
+
+        function updateGibsonUI() {
+            const count = parseInt(document.getElementById('gib-insert-count').value);
+            const rows = document.querySelectorAll('.gib-insert-row');
+            rows.forEach(row => {
+                if (parseInt(row.getAttribute('data-index')) <= count) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // Safe division helper
+        function safeDiv(a, b) {
+            return (b === 0 || isNaN(b)) ? 0 : a / b;
+        }
+
+        // --- Ligation Calculator Logic ---
+        function calculateLigation() {
+            const vecSize = parseFloat(document.getElementById('lig-vec-size').value) || 0;
+            const vecConc = parseFloat(document.getElementById('lig-vec-conc').value) || 0;
+            const vecTargetNg = parseFloat(document.getElementById('lig-vec-target').value) || 0;
+            
+            const insSize = parseFloat(document.getElementById('lig-ins-size').value) || 0;
+            const insConc = parseFloat(document.getElementById('lig-ins-conc').value) || 0;
+            
+            const ratio = parseFloat(document.getElementById('lig-ratio').value) || 0;
+            const totalVol = parseFloat(document.getElementById('lig-vol').value) || 0;
+
+            // Calculations
+            // Insert ng needed = Molar_Ratio * Vector_ng * (Insert_bp / Vector_bp)
+            const insTargetNg = ratio * vecTargetNg * safeDiv(insSize, vecSize);
+            
+            const vecVol = safeDiv(vecTargetNg, vecConc);
+            const insVol = safeDiv(insTargetNg, insConc);
+            const bufVol = totalVol / 10;
+            const enzVol = totalVol / 20;
+            const h2oVol = totalVol - (vecVol + insVol + bufVol + enzVol);
+
+            // Output updates
+            document.getElementById('lig-out-ins-ng').textContent = insTargetNg.toFixed(2);
+            document.getElementById('lig-out-vec-vol').textContent = vecVol.toFixed(2);
+            document.getElementById('lig-out-ins-vol').textContent = insVol.toFixed(2);
+            document.getElementById('lig-out-buf-vol').textContent = bufVol.toFixed(2);
+            document.getElementById('lig-out-enz-vol').textContent = enzVol.toFixed(2);
+            document.getElementById('lig-out-h2o-vol').textContent = h2oVol.toFixed(2);
+            document.getElementById('lig-out-total-vol').textContent = totalVol.toFixed(2);
+
+            const warnEl = document.getElementById('lig-warning');
+            const h2oEl = document.getElementById('lig-out-h2o-vol');
+            if (h2oVol < 0) {
+                warnEl.classList.remove('hidden');
+                h2oEl.classList.add('text-red-600');
+            } else {
+                warnEl.classList.add('hidden');
+                h2oEl.classList.remove('text-red-600');
+            }
+        }
+
+        // --- Gibson Assembly Calculator Logic ---
+        function calculateGibson() {
+            const vecSize = parseFloat(document.getElementById('gib-vec-size').value) || 0;
+            const vecConc = parseFloat(document.getElementById('gib-vec-conc').value) || 0;
+            const vecTargetNg = parseFloat(document.getElementById('gib-vec-target').value) || 0;
+            const totalVol = parseFloat(document.getElementById('gib-vol').value) || 0;
+            const insertCount = parseInt(document.getElementById('gib-insert-count').value);
+
+            // Vector pmol = (Vector_ng * 1000) / (Vector_bp * 650)
+            const vecPmol = safeDiv((vecTargetNg * 1000), (vecSize * 650));
+            document.getElementById('gib-vec-pmol').textContent = `${vecPmol.toFixed(4)} pmol`;
+            
+            const vecVol = safeDiv(vecTargetNg, vecConc);
+            let totalInsertVol = 0;
+            const insertRowsHTML = [];
+
+            for (let i = 1; i <= insertCount; i++) {
+                const size = parseFloat(document.getElementById(`gib-ins${i}-size`).value) || 0;
+                const conc = parseFloat(document.getElementById(`gib-ins${i}-conc`).value) || 0;
+                const ratio = parseFloat(document.getElementById(`gib-ins${i}-ratio`).value) || 0;
+
+                // Insert_pmol = Vector_pmol * Molar_Ratio
+                const insPmol = vecPmol * ratio;
+                // Insert_ng = (Insert_pmol * Insert_bp * 650) / 1000
+                const insNg = safeDiv((insPmol * size * 650), 1000);
+                const insVol = safeDiv(insNg, conc);
+                
+                totalInsertVol += insVol;
+
+                // Update insert metrics in the input card
+                document.getElementById(`gib-ins${i}-metrics`).textContent = `${insPmol.toFixed(3)} pmol | ${insNg.toFixed(1)} ng`;
+
+                insertRowsHTML.push(`
+                    <tr>
+                        <td class="py-2 px-4 border-b">Insert ${i}</td>
+                        <td class="py-2 px-4 border-b text-right font-mono">${insVol.toFixed(2)}</td>
+                    </tr>
+                `);
+            }
+
+            const mmVol = totalVol / 2;
+            const h2oVol = totalVol - (mmVol + vecVol + totalInsertVol);
+
+            const tbody = document.getElementById('gib-recipe-tbody');
+            let tableHTML = `
+                <tr><td class="py-2 px-4 border-b">Vector</td><td class="py-2 px-4 border-b text-right font-mono">${vecVol.toFixed(2)}</td></tr>
+                ${insertRowsHTML.join('')}
+                <tr><td class="py-2 px-4 border-b">Gibson Master Mix (2X)</td><td class="py-2 px-4 border-b text-right font-mono">${mmVol.toFixed(2)}</td></tr>
+                <tr class="bg-blue-50"><td class="py-2 px-4 font-semibold">Water (MQ)</td><td class="py-2 px-4 text-right font-mono font-bold ${h2oVol < 0 ? 'text-red-600' : ''}">${h2oVol.toFixed(2)}</td></tr>
+                <tr class="bg-gray-100 font-bold"><td class="py-2 px-4">Total</td><td class="py-2 px-4 text-right font-mono">${totalVol.toFixed(2)}</td></tr>
+            `;
+            tbody.innerHTML = tableHTML;
+
+            const warnEl = document.getElementById('gib-warning');
+            if (h2oVol < 0) {
+                warnEl.classList.remove('hidden');
+            } else {
+                warnEl.classList.add('hidden');
+            }
+        }
+
+        // Initialize calculations on load
+        window.onload = () => {
+            calculateLigation();
+            calculateGibson();
+        };
+
+    </script>
+</body>
+</html>
