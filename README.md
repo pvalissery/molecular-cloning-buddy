@@ -1,8 +1,8 @@
 # molecular-cloning-buddy
 
-Molecular Cloning Calculator 🧬
 A calculator for Ligation and Gibson Assembly reactions. Built this to replace a folder full of clunky Excel spreadsheets that are a pain to navigate at the bench. It handles the molar ratio math and volume scaling automatically.
-
+https://pvalissery.github.io/molecular-cloning-buddy/
+ 
 What's Inside
 The tool packs two main calculators 
 
